@@ -164,6 +164,8 @@ def site_report(url):
         json.dump(dict, file, indent=4) 
         file.write("\nSalvat în report.json")
 
+    print(dict)
+
 #bonus
 def get_title_bs(url) -> str:
     """Extrage titlu din html text."""
