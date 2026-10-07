@@ -174,21 +174,65 @@ def tip_real(cale):
 #     open("gasit.zip","wb").write(date[i:])
 #     print("arhiva extrasa de la octetul", i)
 
-img = Image.open("../../probe/foto.jpg").convert("RGB")
-px = list(img.getdata())
-mesaj = b"FLAG{ascuns_in_pixeli}"
-biti = "".join(f"{x:08b}" for x in mesaj)
+#B5
 
-px_nou = []
+# img = Image.open("../../probe/foto.jpg").convert("RGB")
+# px = img.get_flattened_data()
+# mesaj = b"FLAG{ascuns_in_pixeli}\0"
+# biti = "".join(f"{c:08b}" for c in mesaj)
 
-# TODO: pentru fiecare bit, ia un canal si pune
-#   canal = (canal & ~1) | int(bit)
-for bit in biti:
-    r,g,b = bit
+# canale = [c for p in px for c in p]
 
-    r = (r & ~1) | int(bit)
+# # TODO: pentru fiecare bit, ia un canal si pune
+# #   canal = (canal & ~1) | int(bit)
+# # TODO: img.putdata(px_nou); img.save("stego.png")
 
-    px_nou.append((r,g,b))
-# TODO: img.putdata(px_nou); img.save("stego.png")
-img.putdata(px_nou)
-img.save("stego.png")
+# for i,bit in enumerate(biti):
+#     canale[i] = (canale[i] & ~1) | int(bit)
+
+# px_nou = [tuple(canale[i:i+3]) for i in range(0, len(canale), 3)]
+
+# img.putdata(px_nou)
+# img.save("stego.png")
+
+#B6
+# px = list(Image.open("stego.png").convert("RGB").get_flattened_data())
+# biti = ""
+
+# for (r, g, b) in px:
+#     # TODO: aduna ultimii biti (r&1, g&1, b&1)
+#     biti += str(r & 1) + str(g & 1) + str(b & 1)
+# # TODO: grupeaza cate 8 biti -> octeti -> text
+# #       opreste-te la primul octet 0 (final de mesaj)
+
+# l = []
+
+# for i in range(0, len(biti) - 7, 8):
+#     octet = int(biti[i:i+8],2)
+
+#     if octet == 0:
+#         break
+
+#     l.append(octet)
+
+# mesaj = bytes(l)
+# print(mesaj)
+
+# PENTRU VÂRFUL SĂLII (opțional).  Dacă termini devreme, în probe/ găsești challenge.bin: un fișier care combină tot ce
+# ai făcut azi (un strat de encoding peste un XOR, cu un hash de verificat)
+# . Despică-l singur, fără schelet, și pune pașii în raport. Este genul de problemă pe care o vei întâlni pe pwn.college și
+# pe challenge-urile de forensics
+
+data = None
+
+with open("../../probe/challenge.bin", "rb") as f:
+    data = f.read()
+
+byte_data = base64.b64decode(data)
+
+for i in range(256):
+    decoded = bytes(b ^ i for b in byte_data)
+
+    if all(32 <= b <= 127 for b in decoded):
+        print(i, decoded)
+
