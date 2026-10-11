@@ -11,7 +11,7 @@ ECHO_URL = "https://httpbin.org"
 TIMEOUT = 10  # secunde
 
 #Ex1
-#requests a avut nevoie de install iar urllib nu deoarece urllib se afala in librarie care vin odata cu instalarea python default 
+#requests a avut nevoie de install iar urllib nu deoarece urllib se afala  in librarie care vin odata cu instalarea python default 
 #print(requests.__version__)
 
 #Ex2

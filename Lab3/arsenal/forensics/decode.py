@@ -72,8 +72,8 @@ def citibil(b):
 #     else:
 #         val = b.decode()
     
-#A5
-# date = open("../../probe/xor.bin", "rb").read()
+# A5
+date = open("../../probe/xor.bin", "rb").read()
 
 # for k in range(256):
 #     clar = bytes(b ^ k for b in date)
@@ -196,43 +196,43 @@ def tip_real(cale):
 # img.save("stego.png")
 
 #B6
-# px = list(Image.open("stego.png").convert("RGB").get_flattened_data())
-# biti = ""
+px = list(Image.open("stego.png").convert("RGB").get_flattened_data())
+biti = ""
 
-# for (r, g, b) in px:
-#     # TODO: aduna ultimii biti (r&1, g&1, b&1)
-#     biti += str(r & 1) + str(g & 1) + str(b & 1)
-# # TODO: grupeaza cate 8 biti -> octeti -> text
-# #       opreste-te la primul octet 0 (final de mesaj)
+for (r, g, b) in px:
+    # TODO: aduna ultimii biti (r&1, g&1, b&1)
+    biti += str(r & 1) + str(g & 1) + str(b & 1)
+# TODO: grupeaza cate 8 biti -> octeti -> text
+#       opreste-te la primul octet 0 (final de mesaj)
 
-# l = []
+l = []
 
-# for i in range(0, len(biti) - 7, 8):
-#     octet = int(biti[i:i+8],2)
+for i in range(0, len(biti) - 7, 8):
+    octet = int(biti[i:i+8],2)
 
-#     if octet == 0:
-#         break
+    if octet == 0:
+        break
 
-#     l.append(octet)
+    l.append(octet)
 
-# mesaj = bytes(l)
-# print(mesaj)
+mesaj = bytes(l)
+print(mesaj)
 
 # PENTRU VÂRFUL SĂLII (opțional).  Dacă termini devreme, în probe/ găsești challenge.bin: un fișier care combină tot ce
 # ai făcut azi (un strat de encoding peste un XOR, cu un hash de verificat)
 # . Despică-l singur, fără schelet, și pune pașii în raport. Este genul de problemă pe care o vei întâlni pe pwn.college și
 # pe challenge-urile de forensics
 
-data = None
+# data = None
 
-with open("../../probe/challenge.bin", "rb") as f:
-    data = f.read()
+# with open("../../probe/challenge.bin", "rb") as f:
+#     data = f.read()
 
-byte_data = base64.b64decode(data)
+# byte_data = base64.b64decode(data)
 
-for i in range(256):
-    decoded = bytes(b ^ i for b in byte_data)
+# for i in range(256):
+#     decoded = bytes(b ^ i for b in byte_data)
 
-    if all(32 <= b <= 127 for b in decoded):
-        print(i, decoded)
+#     if all(32 <= b <= 127 for b in decoded):
+#         print(i, decoded)
 
