@@ -9,7 +9,6 @@ def search(params):
     r = requests.get("https://httpbin.org/get", params=params)
     print(r.json()["args"]) # {'q': 'python', 'page': '2'
     
-search({'q':'python', 'page':'2'})
 
 def search_url(params):
     # Exercițiu de pregătire: Trusa de unelte HTTP
@@ -20,7 +19,6 @@ def search_url(params):
     "2"})
     print(r.url) # https://httpbin.org/get?q=python&page=2
 
-search_url({'q':'python', 'page':'2'})
 
 # Partea 2: anteturi
 def fetch_with_agent(agent):
@@ -29,14 +27,12 @@ def fetch_with_agent(agent):
     r = requests.get("https://httpbin.org/headers", headers={"User-Agent": agent})
     print(r.json()["headers"]["User-Agent"]) # MyBot/1.
 
-fetch_with_agent("agent")
 
 def default_agent():
     """Returnează User-Agent-ul trimis de requests când nu setezi nimic."""
     r = requests.get("https://httpbin.org/headers")
     print(r.json()["headers"]["User-Agent"]) # MyBot/1.
 
-default_agent()
 
 # Partea 3: trimiterea datelor
 def post_json(data):
@@ -45,7 +41,6 @@ def post_json(data):
     r = requests.post("https://httpbin.org/post", json=data)
     print(r.json()["json"]) # {'name': 'Ana'}
 
-post_json("Ana")
 
 def post_form(data):
     r = requests.post("https://httpbin.org/post", data=data)
@@ -53,7 +48,6 @@ def post_form(data):
     """POST cu datele ca formular pe /post; returnează formularul primit de
     server."""
 
-post_json("Ana")
 
 # Partea 4: coduri de stare
 def describe_status(code):
@@ -71,7 +65,6 @@ def describe_status(code):
         else:
             print("a eșuat:", e)
 
-describe_status(503)
 
 def is_ok(code):
     """GET pe /status/<code>; returnează True dacă cererea a reușit, altfel
@@ -83,7 +76,6 @@ def is_ok(code):
     except requests.HTTPError as e:
         return False
 
-print(is_ok(209))
 
 # Partea 5: redirecționări
 def count_redirects(n):
@@ -94,7 +86,6 @@ def count_redirects(n):
     r = requests.get(f"https://httpbin.org/redirect/{n}")
     print(len(r.history)) 
 
-count_redirects(5)
 
 def final_url(n):
     """GET pe /redirect/<n>; returnează adresa la care ai ajuns."""
@@ -102,7 +93,6 @@ def final_url(n):
     print(r.status_code) # 302
     print(r.url) # 302
 
-final_url(4)
 
 def first_hop(n):
     """GET pe /redirect/<n> FĂRĂ a urma redirecționarea; returnează antetul
@@ -112,7 +102,6 @@ def first_hop(n):
     print(r.status_code) # 302
     print(r.headers["location"]) # unde voia serverul să te trimită
 
-first_hop(4)
 
 # Partea 6: sesiuni și cookie-uri
 def cookie_demo(name, value):
@@ -123,59 +112,65 @@ def cookie_demo(name, value):
     r = s.get("https://httpbin.org/cookies")
     print(r.json()["cookies"]) # {'theme': 'dark'}
 
-cookie_demo("theme", "dark")
 
 #?
 def no_session_demo(name, value):
     """Fă același lucru cu apeluri simple requests.get; returnează cookie-
     urile văzute de server."""
-    s = requests.Session()
-    s.get(f"https://httpbin.org/cookies/set?{name}={value}")
-    s.get(f"https://httpbin.org/cookies/set?{name}s={value}s")
-    r = s.get("https://httpbin.org/cookies")
+    r = requests.get(f"https://httpbin.org/cookies/set?{name}={value}")
+    print(r.json()["cookies"]) # {'theme': 'dark'}
+    r = requests.get(f"https://httpbin.org/cookies/set?{name}s={value}s")
     print(r.json()["cookies"]) # {'theme': 'dark'}
 
-cookie_demo("theme", "dark")
 # Partea 7: raportul final
 
 def report(path):
     """Returnează un dicționar care descrie pagina de la BASE + path."""
-    r = requests.get(BASE + path, timeout=3)
+    d = {}
 
-    d = {
-        "status": describe_status(r.status_code) if is_ok else f"{None}, {describe_status(r.status_code)}",
-        "final_url": final_url(r.url),
-        "redirects": r.url,
+    try:
+        r = requests.get(BASE + path, timeout=3)
+        r.raise_for_status
+        d = { "status": r.status_code,
+        "final_url": r.url,
+        "redirects": len(r.history),
         "seconds": r.elapsed,
         "content_type": "application/json",
-    }
+        }
 
+    except:
+        d = {
+            "status": None,
+            "error": "Eroare de cod, url sau timeout"
+        }
     return d
 
 def main():
-    # l = []
-    # ctr_f = 0
+    l = []
+    ctr_f = 0
 
-    # for path in PATHS:
-    #     d = report(path)
-    #     if d["status"] == 200:
-    #         l.append(path)
-    #     else:
-    #         ctr_f += 1
+    for path in PATHS:
+        d = report(path)
+        if d["status"] == 200:
+            l.append(d)
+        else:
+            ctr_f += 1
 
-    # print(sorted(l, key=lambda x: x["seconds"]))
+    print([path['final_url'] for path in l])
 
 
-    # print("Failed: " + ctr_f + "\n" + "Succeded: " + len(l))
-    pass
+    print("Failed: " + str(ctr_f) + "\n" + "Succeded: " + str(len(l)))
 
 # Bonus: autentificare
 def check_login(user, password):
     """Returnează True dacă serverul acceptă datele de autentificare, altfel
     False."""
-    pass
+    r = requests.get("https://httpbin.org/basic-auth/admin/secret", auth=(user, password))
+
+    if r.status_code == 200:
+        return True
+
+    return False
+
     # Exercițiu de pregătire: Trusa de unelte HTTP
     # Page 3 of 11
-if __name__ == "__main__":
-    print("\n\n")
-    main()
