@@ -33,34 +33,144 @@ def build_url(host, path):
     url = (host +  (path if path[0] == "/" else f"/{path}") )
     return url
 
+print("Part1")
+print(build_url("example.com", "/login"))
+print(build_url("example.com", "login"))
+
 def is_https(url):
     """Returnează True dacă adresa începe cu https://, altfel False."""
     if "https" == url[:5]:
-        print(url[:5])
         return True
 
     return False
 
+print(is_https("https://example.com"))
+print(is_https("http://example.com"))
+
 def show_response(url):
     """Trimite un GET la url și afișează statusul și Content-Type."""
-    pass
+    r = requests.get(url)
+    print(f"Status: {r.status_code}")
+    print(f"Content-Type: {r.headers["Content-Type"]}")
 
+print("Part2")
+show_response("https://example.com")
 
 def check_site(url):
     """Returnează un dicționar cu: status, content_type, length, server."""
-    pass
+    d = {}
 
+    try:
+
+        r = requests.get(url, timeout=5)
+        r.raise_for_status()
+        d = {
+            "status" : r.status_code,
+            "content_type" : r.headers["Content-Type"],
+            "length": len(r.content),
+            "server": r.headers["Server"] if r.headers["Server"] else "Unknown"
+        }
+    except:
+        d = {
+            "status" : None,
+            "error": "Erorare de url sau tiemout"
+        }
+    
+    return d
+
+print("Part3")
+
+for site in SITES:
+    print(check_site(site))
+
+print("\n\n")
 
 def scan_sites():
     """Verifică toate site-urile din SITES, afișează-le pe cele care merg și un rezumat."""
-    pass
+    l = []
+    ctr = 0;
 
+    for site in SITES:
+        d = check_site(site)
+        d["url"] = site
+        if d["status"] == 200:
+            l.append(d)
+        else:
+            ctr += 1
+
+    sorted(l, key=lambda x: x["length"])
+
+    for site in l:
+        print(f"{site["url"]} -> {site["status"]}, {site["length"]} octeti")
+
+    print(f"Reusite: {len(l)} | Esuate: {ctr}")
+
+scan_sites()
 
 def check_headers(url):
     """Returnează un dicționar cu: present, missing, score."""
-    pass
+    d = {
+        "present":[],
+        "missing":[],
+        "score": 0, 
+    }
+
+    try:
+        r = requests.get(url, timeout=5)
+
+        headers = r.headers 
+
+        
+
+        if "Strict-Transport-Security" in headers:
+            d["present"].append("Strict-Transport-Security")
+        else:
+            d["missing"].append("Strict-Transport-Security")
+
+        if "Content-Security-Policy" in headers:
+            d["present"].append("Content-Security-Policy")
+        else:
+            d["missing"].append("Content-Security-Policy")
+
+        if "X-Frame-Options" in headers:
+            d["present"].append("X-Frame-Options")
+        else:
+            d["missing"].append("X-Frame-Options")
+
+        if "X-Content-Type-Options" in headers:
+            d["present"].append("X-Content-Type-Options")
+        else:
+            d["missing"].append("X-Content-Type-Options")
+
+        d["score"] = d["missing"] / 4 * 100
+    except:
+
+     d = {
+            "status" : None,
+            "error": "Erorare de url sau tiemout"
+        }
+    
+    return d; 
+
+for site in SITES:
+    print(check_headers(site))
+
+print("\n\n")
+
 
 
 def retry_check(url, attempts=3):
     """Încearcă de cel mult `attempts` ori; returnează un dicționar cu: status, attempts."""
-    pass
+    for attempt in range(attempts):
+        try:
+            r = requests.get(url, timeout=5)
+            r.raise_for_status()
+            return {"attempt": attempt}
+        except requests.HTTPError as re :
+            if range(400, 500) in re:
+                return {"status": None, "error": "depasit limita de incercari", attempts: attempts}         
+        except :
+            pass
+
+    return {"status": None, "error": "depasit limita de incercari", attempts: attempts} 
+
