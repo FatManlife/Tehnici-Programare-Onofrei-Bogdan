@@ -33,10 +33,6 @@ def build_url(host, path):
     url = (host +  (path if path[0] == "/" else f"/{path}") )
     return url
 
-print("Part1")
-print(build_url("example.com", "/login"))
-print(build_url("example.com", "login"))
-
 def is_https(url):
     """Returnează True dacă adresa începe cu https://, altfel False."""
     if "https" == url[:5]:
@@ -44,17 +40,11 @@ def is_https(url):
 
     return False
 
-print(is_https("https://example.com"))
-print(is_https("http://example.com"))
-
 def show_response(url):
     """Trimite un GET la url și afișează statusul și Content-Type."""
     r = requests.get(url)
     print(f"Status: {r.status_code}")
     print(f"Content-Type: {r.headers["Content-Type"]}")
-
-print("Part2")
-show_response("https://example.com")
 
 def check_site(url):
     """Returnează un dicționar cu: status, content_type, length, server."""
@@ -78,12 +68,6 @@ def check_site(url):
     
     return d
 
-print("Part3")
-
-for site in SITES:
-    print(check_site(site))
-
-print("\n\n")
 
 def scan_sites():
     """Verifică toate site-urile din SITES, afișează-le pe cele care merg și un rezumat."""
@@ -105,7 +89,6 @@ def scan_sites():
 
     print(f"Reusite: {len(l)} | Esuate: {ctr}")
 
-scan_sites()
 
 def check_headers(url):
     """Returnează un dicționar cu: present, missing, score."""
@@ -151,12 +134,6 @@ def check_headers(url):
         }
     
     return d; 
-
-for site in SITES:
-    print(check_headers(site))
-
-print("\n\n")
-
 
 
 def retry_check(url, attempts=3):
