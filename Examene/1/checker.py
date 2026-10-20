@@ -101,9 +101,7 @@ def check_headers(url):
     try:
         r = requests.get(url, timeout=5)
 
-        headers = r.headers 
-
-        
+        headers = r.headers
 
         if "Strict-Transport-Security" in headers:
             d["present"].append("Strict-Transport-Security")
@@ -125,7 +123,7 @@ def check_headers(url):
         else:
             d["missing"].append("X-Content-Type-Options")
 
-        d["score"] = d["missing"] / 4 * 100
+        d["score"] = len(d["present"]) / 4 * 100
     except:
 
      d = {
@@ -144,8 +142,7 @@ def retry_check(url, attempts=3):
             r.raise_for_status()
             return {"attempt": attempt}
         except requests.HTTPError as re :
-            if range(400, 500) in re:
-                return {"status": None, "error": "depasit limita de incercari", attempts: attempts}         
+            return {"status": None, "error": "depasit limita de incercari", attempts: attempts}         
         except :
             pass
 
